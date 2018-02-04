@@ -3,6 +3,9 @@ pipeline {
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
+  environment {
+  	BUILD_WORKSPACE=""
+  }
   parameters {
     string(name: 'IMAGE_REPO_NAME', defaultValue: 'jamessmith52963/basic-react', description: '')
     string(name: 'LATEST_BUILD_TAG', defaultValue: 'build-latest', description: '')
@@ -48,7 +51,7 @@ pipeline {
 	  }
       }
       steps{
-	echo "$WORKSPACE"
+	env.BUILD_WORKSPACE="$WORKSPACE"
 	sh "pwd"
         sh "npm run build"
       }
@@ -59,7 +62,8 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-	echo "$WORKSPACE"
+	echo "${env.BUILD_WORKSPACE}"
+	sh "cd ${env.BUILD_WORKSPACE}"
 	sh "pwd"
         sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
