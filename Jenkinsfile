@@ -18,7 +18,7 @@ pipeline {
   stages {
     stage('npm install, test, build'){
       agent {
-          docker { image 'node:latest' }
+          docker { image 'node:latest' args "-v $JENKINS_HOME/$BUILD_TAG:$WORKSPACE"}
       }
       steps{
 	 echo "$WORKSPACE"
@@ -34,8 +34,8 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-	echo "$WORKSPACE"
-	sh "pwd"
+	echo "$JENKINS_HOME/$BUILD_TAG"
+	cd "$JENKINS_HOME/$BUILD_TAG"
         sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
