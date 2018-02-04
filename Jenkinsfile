@@ -1,10 +1,10 @@
 pipeline {
-	agent {
-		docker{
-			image: 'node:latest'
-			args: '-v /bin/docker:/bin/docker -v  /var/run/docker.sock:/var/run/docker.sock'
-		}
-	}
+  agent {
+    docker {
+	image 'node:latest'
+	args '-v /bin/docker:/bin/docker -v  /var/run/docker.sock:/var/run/docker.sock'
+    }
+  }
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
