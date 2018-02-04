@@ -16,7 +16,7 @@ pipeline {
     booleanParam(name: 'DOCKER_STACK_RM', defaultValue: false, description: 'Remove previous stack.  This is required if you have updated any secrets or configs as these cannot be updated. ')
   }
   stages {
-    stage('npm install'){
+    stage('npm install, test, build'){
       agent {
           docker { image 'node:latest' }
       }
@@ -24,40 +24,8 @@ pipeline {
 	 echo "$WORKSPACE"
 	 sh "pwd"
          sh "npm install"
-	 
-      }
-    }
-    stage('npm test'){
-	agent {
-          docker { 
-		  image 'node:latest'
-	  }
-      	}
-	    when{
-		    expression{
-			    return params.NPM_RUN_TEST
-		    }
-	    }
-	steps{
-	  echo "$WORKSPACE"
-	  sh "pwd"
-	  sh "npm test -- --coverage"
-	}
-    }
-    stage('npm build'){
-      agent {
-          docker { 
-		image 'node:latest'
-	  }
-      }
-      steps{
-	      script{
-	      	env.BUILD_WORKSPACE="$WORKSPACE"
-	      }
-	      
-	
-	sh "pwd"
-        sh "npm run build"
+	 sh "npm test -- --coverage"
+         sh "npm run build"
       }
     }
     stage('docker build'){
@@ -66,8 +34,7 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-	echo "${env.BUILD_WORKSPACE}"
-	sh "cd ${env.BUILD_WORKSPACE}"
+	echo "$WORKSPACE"
 	sh "pwd"
         sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
