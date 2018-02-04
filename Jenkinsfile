@@ -27,8 +27,7 @@ pipeline {
     stage('npm test'){
 	agent {
           docker { 
-		  image 'node:latest' 
-		  reuseNode true 
+		  image 'node:latest'
 	  }
       	}
 	    when{
@@ -45,8 +44,7 @@ pipeline {
     stage('npm build'){
       agent {
           docker { 
-		image 'node:latest' 
-		reuseNode true
+		image 'node:latest'
 	  }
       }
       steps{
@@ -61,7 +59,8 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-	echo $WORKSPACE
+	echo "$WORKSPACE"
+	sh "pwd"
         sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
