@@ -16,11 +16,6 @@ pipeline {
     booleanParam(name: 'DOCKER_STACK_RM', defaultValue: false, description: 'Remove previous stack.  This is required if you have updated any secrets or configs as these cannot be updated. ')
   }
   stages { 
-    stage('create workspace'){
-       steps{
-         sh "mkdir -p $JENKINS_HOME/workspace/$BUILD_TAG"
-       }
-    }
     stage('npm install, test, build'){
       agent {
           docker { 
@@ -32,7 +27,8 @@ pipeline {
          sh "npm install"
 	 sh "npm test -- --coverage"
          sh "npm run build"
-         sh "ls -la $JENKINS_HOME/workspace"
+	 sh "mkdir -p $JENKINS_HOME/workspace/$BUILD_TAG"
+	 sh "ls -la $JENKINS_HOME/workspace"
 	 sh "cp -R ./* $JENKINS_HOME/workspace/$BUILD_TAG/"
       }
     }
