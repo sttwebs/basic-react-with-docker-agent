@@ -20,7 +20,7 @@ pipeline {
       agent {
           docker { 
 		  image 'node:latest' 
-		  args "-v $JENKINS_HOME/$BUILD_TAG:$WORKSPACE"
+		  args "-v $JENKINS_HOME/$BUILD_TAG:$JENKINS_HOME/$BUILD_TAG"
 	  }
       }
       steps{
