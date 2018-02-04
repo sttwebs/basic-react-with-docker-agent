@@ -18,7 +18,8 @@ pipeline {
   stages { 
     stage('create workspace'){
        steps{
-         sh "mkdir -p $JENKINS_HOME/workspace/$BUILD_TAG"       
+         sh "mkdir -p $JENKINS_HOME/workspace/$BUILD_TAG"
+	 sh "ls -la $JENKINS_HOME/workspace"
        }
     }
     stage('npm install, test, build'){
@@ -33,6 +34,7 @@ pipeline {
          sh "npm install"
 	 sh "npm test -- --coverage"
          sh "npm run build"
+         sh "ls -la $JENKINS_HOME/workspace"
 	 sh "cp -R ./* $JENKINS_HOME/workspace/$BUILD_TAG/"
       }
     }
