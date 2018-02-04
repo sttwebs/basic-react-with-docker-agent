@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
 	image 'node:latest'
-	args '-u root -v /bin/docker:/bin/docker -v  /var/run/docker.sock:/var/run/docker.sock'
+	args '-u root:root -v /bin/docker:/bin/docker -v  /var/run/docker.sock:/var/run/docker.sock'
     }
   }
   options {
@@ -23,6 +23,7 @@ pipeline {
   stages {
     stage('npm install'){
       steps{
+	 sh "whoami"
          sh "npm install"
       }
     }
