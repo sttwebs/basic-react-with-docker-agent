@@ -17,11 +17,17 @@ pipeline {
   }
   stages {
     stage('npm install'){
+      agent {
+          docker { image 'node:latest' }
+      }
       steps{
          sh "npm install"
       }
     }
     stage('npm test'){
+	agent {
+          docker { image 'node:latest' }
+      	}
 	    when{
 		    expression{
 			    return params.NPM_RUN_TEST
@@ -32,6 +38,9 @@ pipeline {
 	}
     }
     stage('npm build'){
+      agent {
+          docker { image 'node:latest' }
+      }
       steps{
         sh "npm run build"
       }
