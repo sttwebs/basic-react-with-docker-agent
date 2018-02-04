@@ -15,20 +15,25 @@ pipeline {
     booleanParam(name: 'PUSH_DOCKER_IMAGES', defaultValue: true, description: '')
     booleanParam(name: 'DOCKER_STACK_RM', defaultValue: false, description: 'Remove previous stack.  This is required if you have updated any secrets or configs as these cannot be updated. ')
   }
-  stages {
+  stages { 
+    stage('create workspace'){
+       steps{
+         sh "mkdir -p $JENKINS_HOME/workspace/$BUILD_TAG"       
+       }
+    }
     stage('npm install, test, build'){
       agent {
           docker { 
 		  image 'node:latest' 
-		  args "-v $JENKINS_HOME/$BUILD_TAG:$JENKINS_HOME/$BUILD_TAG"
+		  args "-v $JENKINS_HOME/workspace/$BUILD_TAG:$JENKINS_HOME/workspace/$BUILD_TAG"
 	  }
       }
       steps{
-	 echo "$WORKSPACE"
 	 sh "pwd"
          sh "npm install"
 	 sh "npm test -- --coverage"
          sh "npm run build"
+	 sh "cp -R ./* $JENKINS_HOME/workspace/$BUILD_TAG/"
       }
     }
     stage('docker build'){
@@ -37,8 +42,7 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-	echo "$JENKINS_HOME/$BUILD_TAG"
-	cd "$JENKINS_HOME/$BUILD_TAG"
+	cd "$JENKINS_HOME/workspace/$BUILD_TAG/"
         sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
