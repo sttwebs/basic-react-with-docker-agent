@@ -51,7 +51,11 @@ pipeline {
 	  }
       }
       steps{
-	env.BUILD_WORKSPACE="$WORKSPACE"
+	      script{
+	      	env.BUILD_WORKSPACE="$WORKSPACE"
+	      }
+	      
+	
 	sh "pwd"
         sh "npm run build"
       }
