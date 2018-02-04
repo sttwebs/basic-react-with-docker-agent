@@ -19,14 +19,12 @@ pipeline {
     stage('create workspace'){
        steps{
          sh "mkdir -p $JENKINS_HOME/workspace/$BUILD_TAG"
-	 sh "ls -la $JENKINS_HOME/workspace"
        }
     }
     stage('npm install, test, build'){
       agent {
           docker { 
-		  image 'node:latest' 
-		  args "-v $JENKINS_HOME/workspace/$BUILD_TAG:$JENKINS_HOME/workspace/$BUILD_TAG"
+		  image 'node:latest'
 	  }
       }
       steps{
