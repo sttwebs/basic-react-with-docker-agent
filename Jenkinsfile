@@ -1,6 +1,7 @@
 pipeline {
   agent {
     node {
+	label 'docker'
         customWorkspace "$JENKINS_HOME/workspace/$BUILD_TAG"
     }
   }
