@@ -1,15 +1,7 @@
 pipeline {
-  agent {
-    node {
-	label 'docker'
-        customWorkspace "$JENKINS_HOME/workspace/$BUILD_TAG"
-    }
-  }
+  agent any
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
-  }
-  environment {
-  	BUILD_WORKSPACE=""
   }
   parameters {
     string(name: 'IMAGE_REPO_NAME', defaultValue: 'jamessmith52963/basic-react', description: '')
@@ -41,12 +33,14 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-	sh "pwd"
-	sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
-	sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
-	sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
-	sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
-	sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+	dir("$JENKINS_HOME/workspace/$BUILD_TAG"){	      
+	  sh "pwd"
+	  sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
+	  sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
+	  sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
+	  sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
+	  sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+	}
       }
     }
     stage('docker push'){
