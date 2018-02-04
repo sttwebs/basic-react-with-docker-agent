@@ -3,9 +3,6 @@ pipeline {
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
-  tools {
-    nodejs 'node-latest'
-  }
   parameters {
     string(name: 'IMAGE_REPO_NAME', defaultValue: 'jamessmith52963/basic-react', description: '')
     string(name: 'LATEST_BUILD_TAG', defaultValue: 'build-latest', description: '')
