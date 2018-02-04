@@ -18,7 +18,10 @@ pipeline {
   stages {
     stage('npm install, test, build'){
       agent {
-          docker { image 'node:latest' args "-v $JENKINS_HOME/$BUILD_TAG:$WORKSPACE"}
+          docker { 
+		  image 'node:latest' 
+		  args "-v $JENKINS_HOME/$BUILD_TAG:$WORKSPACE"
+	  }
       }
       steps{
 	 echo "$WORKSPACE"
