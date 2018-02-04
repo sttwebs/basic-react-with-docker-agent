@@ -18,8 +18,10 @@ pipeline {
           docker { image 'node:latest' }
       }
       steps{
+	 echo "$WORKSPACE"
+	 sh "pwd"
          sh "npm install"
-	 echo $WORKSPACE
+	 
       }
     }
     stage('npm test'){
@@ -35,8 +37,9 @@ pipeline {
 		    }
 	    }
 	steps{
-	  sh "npm test -- --coverage"	
-	  echo $WORKSPACE
+	  echo "$WORKSPACE"
+	  sh "pwd"
+	  sh "npm test -- --coverage"
 	}
     }
     stage('npm build'){
@@ -47,8 +50,9 @@ pipeline {
 	  }
       }
       steps{
+	echo "$WORKSPACE"
+	sh "pwd"
         sh "npm run build"
-	echo $WORKSPACE
       }
     }
     stage('docker build'){
