@@ -15,15 +15,16 @@ pipeline {
   stages {
     stage('npm install'){
       agent {
-          docker { image 'node:latest' }
+          docker { image 'node:latest' reuseNode true }
       }
       steps{
          sh "npm install"
+	 echo $WORKSPACE
       }
     }
     stage('npm test'){
 	agent {
-          docker { image 'node:latest' }
+          docker { image 'node:latest' reuseNode true }
       	}
 	    when{
 		    expression{
@@ -32,14 +33,19 @@ pipeline {
 	    }
 	steps{
 	  sh "npm test -- --coverage"	
+	  echo $WORKSPACE
 	}
     }
     stage('npm build'){
       agent {
-          docker { image 'node:latest' }
+          docker { 
+		image 'node:latest' 
+		reuseNode true
+	  }
       }
       steps{
         sh "npm run build"
+	echo $WORKSPACE
       }
     }
     stage('docker build'){
@@ -48,6 +54,7 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
+	echo $WORKSPACE
         sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
         sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
