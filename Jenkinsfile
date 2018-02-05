@@ -24,6 +24,8 @@ pipeline {
     stage('npm install'){
       steps{
 	 sh "whoami"
+	 sh "docker -v"
+	 sh "docker ps"
          sh "npm install"
       }
     }
