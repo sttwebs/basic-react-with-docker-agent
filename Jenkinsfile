@@ -2,14 +2,11 @@ pipeline {
   agent {
     docker {
 	image 'node:latest'
-	args '-u root:root -v  /var/run/docker.sock:/var/run/docker.sock'
+	args '-v  /var/run/docker.sock:/var/run/docker.sock'
     }
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
-  }
-  tools {
-    nodejs 'node-latest'
   }
   parameters {
     string(name: 'IMAGE_REPO_NAME', defaultValue: 'jamessmith52963/basic-react', description: '')
