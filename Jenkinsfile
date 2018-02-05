@@ -23,9 +23,20 @@ pipeline {
       steps{
 	 sh "pwd"
          sh "npm install"
+      }
+    }
+    stage('npm test'){
+      agent {
+          docker { 
+	     image 'node:latest'
+	     customWorkspace "$JENKINS_HOME/workspace/$BUILD_TAG"
+	  }
+      }
+      steps{
+	 sh "pwd"
 	 sh "npm test -- --coverage"
       }
-    } 
+    }
     stage('npm build'){
       agent {
           docker { 
@@ -34,6 +45,7 @@ pipeline {
 	  }
       }
       steps{
+	 sh "pwd"
          sh "npm run build"
       }
     }
