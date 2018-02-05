@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    docker {
-	image 'node:latest'
-	args '-u root:root'
-    }
-  }
+  agent any
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
@@ -17,28 +12,29 @@ pipeline {
     booleanParam(name: 'PUSH_DOCKER_IMAGES', defaultValue: true, description: '')
     booleanParam(name: 'DOCKER_STACK_RM', defaultValue: false, description: 'Remove previous stack.  This is required if you have updated any secrets or configs as these cannot be updated. ')
   }
-  stages {
-    stage('npm install'){
-      steps{
-	 sh "whoami"
-	 sh "docker -v"
-	 sh "docker ps"
-         sh "npm install"
+  stages { 
+    stage('npm install, test, build'){
+      agent {
+          docker { 
+	     image 'node:latest'
+	     customWorkspace "$JENKINS_HOME/workspace/$BUILD_TAG"
+	  }
       }
-    }
-    stage('npm test'){
-	    when{
-		    expression{
-			    return params.NPM_RUN_TEST
-		    }
-	    }
-	steps{
-	  sh "npm test -- --coverage"	
-	}
-    }
-    stage('npm build'){
       steps{
-        sh "npm run build"
+	 sh "pwd"
+         sh "npm install"
+	 sh "npm test -- --coverage"
+      }
+    } 
+    stage('npm build'){
+      agent {
+          docker { 
+	     image 'node:latest'
+	     customWorkspace "$JENKINS_HOME/workspace/$BUILD_TAG"
+	  }
+      }
+      steps{
+         sh "npm run build"
       }
     }
     stage('docker build'){
@@ -47,11 +43,14 @@ pipeline {
         BUILD_IMAGE_REPO_TAG = "${params.IMAGE_REPO_NAME}:${env.BUILD_TAG}"
       }
       steps{
-        sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
-        sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+	dir("$JENKINS_HOME/workspace/$BUILD_TAG"){	      
+	  sh "pwd"
+	  sh "docker build . -t $BUILD_IMAGE_REPO_TAG"
+	  sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$COMMIT_TAG"
+	  sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${readJSON(file: 'package.json').version}"
+	  sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:${params.LATEST_BUILD_TAG}"
+	  sh "docker tag $BUILD_IMAGE_REPO_TAG ${params.IMAGE_REPO_NAME}:$BRANCH_NAME-latest"
+	}
       }
     }
     stage('docker push'){
